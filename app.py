@@ -15,10 +15,6 @@ df = pd.read_excel("retail_data.xlsx")
 
 unique_skus = df['L1-Product ID'].unique()
 store_names = df['Store Name'].unique()
-# Extract unique SKUs and product names
-unique_skus = df[['L1-Product ID', 'Product Name']].drop_duplicates()
-sku_product_pairs = list(unique_skus.apply(lambda row: (row['L1-Product ID'], row['Product Name']), axis=1))
-
 
 def sales_by_location(df_sku, fig):
     location_sales = df_sku.groupby('Store Name')['Sales: $'].sum().reset_index()
@@ -52,11 +48,11 @@ def sales_vs_units_sold(df_sku, fig):
 def all_sku_seasonal_sales(df, fig):
     df['Week End Date'] = pd.to_datetime(df['Week End Date'])
     df['Month'] = df['Week End Date'].dt.month
-    df['Month Name'] = df['Month'].apply(lambda x: calendar.month_abbr[x])  # Convert month number to month name
+    
     for sku in unique_skus:
         df_sku = df[df['L1-Product ID'] == sku]
-        seasonality = df_sku.groupby('Month Name')['Sales: $'].sum().reset_index()
-        fig.add_trace(go.Scatter(x=seasonality['Month Name'], y=seasonality['Sales: $'], mode='lines+markers', name=f'Seasonal Sales (SKU {sku})'))
+        seasonality = df_sku.groupby('Month')['Sales: $'].sum().reset_index()
+        fig.add_trace(go.Scatter(x=seasonality['Month'], y=seasonality['Sales: $'], mode='lines+markers', name=f'Seasonal Sales (SKU {sku})'))
 
 def all_sku_weekly_sales(df, fig):
     for sku in unique_skus:
@@ -101,7 +97,7 @@ SelectedSKU_tab = st.expander("Individual SKU insights")
 with SelectedSKU_tab:
     
     st.title("Selected SKU Analysis")
-    selected_sku, selected_product = st.selectbox("Select SKU and Product:", sku_product_pairs)
+    selected_sku = st.selectbox("Select SKU:", unique_skus)
 
     #Filter the data by selected SKU
     df_sku = df[df['L1-Product ID'] == selected_sku]
