@@ -48,11 +48,13 @@ def sales_vs_units_sold(df_sku, fig):
 def all_sku_seasonal_sales(df, fig):
     df['Week End Date'] = pd.to_datetime(df['Week End Date'])
     df['Month'] = df['Week End Date'].dt.month
+    df['Month Name'] = df['Month'].apply(lambda x: calendar.month_abbr[x])  # Convert month number to month name
     
     for sku in unique_skus:
         df_sku = df[df['L1-Product ID'] == sku]
-        seasonality = df_sku.groupby('Month')['Sales: $'].sum().reset_index()
-        fig.add_trace(go.Scatter(x=seasonality['Month'], y=seasonality['Sales: $'], mode='lines+markers', name=f'Seasonal Sales (SKU {sku})'))
+        seasonality = df_sku.groupby('Month Name')['Sales: $'].sum().reset_index()
+        fig.add_trace(go.Scatter(x=seasonality['Month Name'], y=seasonality['Sales: $'], mode='lines+markers', name=f'Seasonal Sales (SKU {sku})'))
+
 
 def all_sku_weekly_sales(df, fig):
     for sku in unique_skus:
