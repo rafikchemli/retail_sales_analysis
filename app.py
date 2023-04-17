@@ -5,16 +5,13 @@ import plotly.subplots as sp
 import streamlit as st
 import calendar  # Add this import statement
 
+# ... (rest of the code)
 
 
 # Read the data from the xlsx file
 # Upload your data file using the Streamlit file uploader
-uploaded_file = st.file_uploader("Upload your sales data file", type=["xlsx", "xls"])
-if uploaded_file:
-    df = pd.read_excel(uploaded_file)
-else:
-    st.warning("Please upload a valid sales data file.")
-    st.stop()
+
+df = pd.read_excel("retail_data.xlsx")
 
 unique_skus = df['L1-Product ID'].unique()
 store_names = df['Store Name'].unique()
