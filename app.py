@@ -4,14 +4,13 @@ import plotly.graph_objs as go
 import plotly.subplots as sp
 import streamlit as st
 import calendar  # Add this import statement
+import pandas as pd
+import openpyxl  # Add this import at the beginning of your code
 
-# ... (rest of the code)
+# Read the data from the xlsx file using openpyxl
+df = pd.read_excel("retail_data.xlsx", engine='openpyxl')
 
 
-# Read the data from the xlsx file
-# Upload your data file using the Streamlit file uploader
-
-df = pd.read_excel("retail_data.xlsx")
 
 unique_skus = df['L1-Product ID'].unique()
 store_names = df['Store Name'].unique()
