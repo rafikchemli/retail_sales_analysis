@@ -170,10 +170,10 @@ with comparison_tab:
     fig8.update_layout(title_text="All SKUs - Monthly Sales")
 
     
-
+    st.plotly_chart(fig8)
     st.plotly_chart(fig6)
     st.plotly_chart(fig7)
-    st.plotly_chart(fig8)
+    
 
 
     # display_top_stores(df, num_stores=10)  # Change 10 to your desired number of top stores
