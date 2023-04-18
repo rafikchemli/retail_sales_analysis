@@ -9,8 +9,8 @@ import openpyxl  # Add this import at the beginning of your code
 
 # Read the data from the xlsx file using openpyxl
 df = pd.read_excel("retail_data.xlsx", engine='openpyxl')
-# Set wide mode
-st.set_page_config(layout="wide")
+# # Set wide mode
+# st.set_page_config(layout="wide")
 
 
 unique_skus = df['L1-Product ID'].unique()
@@ -117,27 +117,15 @@ def all_sku_monthly_sales(df, fig):
         fig.add_trace(go.Scatter(x=monthly_sales['Week End Date'], y=monthly_sales['Sales: $'], mode='lines+markers', name=f'SKU {sku}'))
     fig.update_layout(yaxis_title="Sales ($)")
 
-import streamlit as st
-
-# def display_top_stores(df, num_stores=10):
-#     # Calculate total sales for each store across all products
-#     store_total_sales = df.groupby('Store Name')['Sales: $'].sum().reset_index()
-
-#     # Sort the DataFrame by total sales in descending order
-#     store_total_sales = store_total_sales.sort_values(by='Sales: $', ascending=False)
-
-#     # Display the top stores
-#     top_stores = store_total_sales.head(num_stores)
-#     st.subheader(f"Top {num_stores} Stores by Total Sales Across All Products")
-#     st.dataframe(top_stores)
 
 def display_top_stores(df, sku=None, num_stores=10):
     if sku:
         df = df[df['L1-Product ID'] == sku]
 
     store_sales = df.groupby('Store Name')['Sales: $'].sum().reset_index()
-    store_units_sold = df.groupby('Store Name')['Sales: Qty'].sum().reset_index()
-    store_summary = store_sales.merge(store_units_sold, on='Store Name')
+    # store_units_sold = df.groupby('Store Name')['Sales: Qty'].sum().reset_index()
+    # store_summary = store_sales.merge(store_units_sold, on='Store Name')
+    store_summary=store_sales
     store_summary = store_summary.nlargest(num_stores, 'Sales: $')
 
     # Reset the index and add 1
@@ -150,8 +138,9 @@ def display_worst_stores(df, sku=None, num_stores=10):
         df = df[df['L1-Product ID'] == sku]
 
     store_sales = df.groupby('Store Name')['Sales: $'].sum().reset_index()
-    store_units_sold = df.groupby('Store Name')['Sales: Qty'].sum().reset_index()
-    store_summary = store_sales.merge(store_units_sold, on='Store Name')
+    # store_units_sold = df.groupby('Store Name')['Sales: Qty'].sum().reset_index()
+    # store_summary = store_sales.merge(store_units_sold, on='Store Name')
+    store_summary=store_sales
     store_summary = store_summary.nsmallest(num_stores, 'Sales: $')
 
     # Reset the index and add 1
