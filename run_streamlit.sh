@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PORT=8015
+PORT=8017
+
 
 # Kill any processes running on the specified port
 lsof -ti tcp:$PORT | xargs kill -9

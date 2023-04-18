@@ -27,7 +27,15 @@ def seasonal_sales(df_sku, fig):
     df_sku['Month'] = df_sku['Week End Date'].dt.month
     df_sku['Month Name'] = df_sku['Month'].apply(lambda x: calendar.month_abbr[x])  # Convert month number to month name
     seasonality = df_sku.groupby('Month Name')['Sales: $'].sum().reset_index()
+
+    # Add a column for month numbers and sort the DataFrame by month number
+    month_number_mapping = {month_abbr: i for i, month_abbr in enumerate(calendar.month_abbr)}
+    seasonality['Month Number'] = seasonality['Month Name'].map(month_number_mapping)
+    seasonality = seasonality.sort_values(by='Month Number')
+
+    # Add the trace with the sorted month names and sales data
     fig.add_trace(go.Scatter(x=seasonality['Month Name'], y=seasonality['Sales: $'], mode='lines+markers', name='Seasonal Sales'))
+
 
 def weekly_sales_by_sku(df_sku, fig):
     weekly_sales = df_sku.groupby('Week End Date')['Sales: $'].sum().reset_index()
@@ -47,11 +55,30 @@ def sales_vs_units_sold(df_sku, fig):
 def all_sku_seasonal_sales(df, fig):
     df['Week End Date'] = pd.to_datetime(df['Week End Date'])
     df['Month'] = df['Week End Date'].dt.month
-    df['Month Name'] = df['Month'].apply(lambda x: calendar.month_abbr[x])  # Convert month number to month name
-    
+    df['Month Name'] = df['Month'].apply(lambda x: calendar.month_abbr[x])
+
+    unique_skus = df['L1-Product ID'].unique()
+
+    # Create a dictionary for month number mapping
+    month_number_mapping = {month_abbr: i for i, month_abbr in enumerate(calendar.month_abbr)}
+
+    # Calculate total sales for each month
+    total_monthly_sales = df.groupby('Month Name')['Sales: $'].sum().reset_index()
+    total_monthly_sales['Month Number'] = total_monthly_sales['Month Name'].map(month_number_mapping)
+    total_monthly_sales = total_monthly_sales.sort_values(by='Month Number')
+
+    # Add a bar chart trace for total sales
+    fig.add_trace(go.Bar(x=total_monthly_sales['Month Name'], y=total_monthly_sales['Sales: $'], name='Total Sales', opacity=0.5))
+
     for sku in unique_skus:
         df_sku = df[df['L1-Product ID'] == sku]
         seasonality = df_sku.groupby('Month Name')['Sales: $'].sum().reset_index()
+
+        # Add a column for month numbers and sort the DataFrame by month number
+        seasonality['Month Number'] = seasonality['Month Name'].map(month_number_mapping)
+        seasonality = seasonality.sort_values(by='Month Number')
+
+        # Add the trace with the sorted month names and sales data
         fig.add_trace(go.Scatter(x=seasonality['Month Name'], y=seasonality['Sales: $'], mode='lines+markers', name=f'Seasonal Sales (SKU {sku})'))
 
 
