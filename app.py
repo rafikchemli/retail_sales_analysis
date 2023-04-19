@@ -6,9 +6,15 @@ import streamlit as st
 import calendar  # Add this import statement
 import pandas as pd
 import openpyxl  # Add this import at the beginning of your code
+# Define a dictionary to map the product IDs to their names
+product_name_mapping = {5101660: "Chickpeas", 5099615: "Cannellini", 5101659: "Black Beans", 5101661: "Kidney Beans"}
 
 # Read the data from the xlsx file using openpyxl
 df = pd.read_excel("retail_data.xlsx", engine='openpyxl')
+df["Product Name"] = df["L1-Product ID"].map(product_name_mapping)  # Add this line to map the product IDs to their names
+
+# Read the data from the xlsx file using openpyxl
+# df = pd.read_excel("retail_data.xlsx", engine='openpyxl')
 # # Set wide mode
 # st.set_page_config(layout="wide")
 
@@ -83,8 +89,8 @@ def all_sku_seasonal_sales(df, fig):
         seasonality = seasonality.sort_values(by='Month Number')
 
         # Add the trace with the sorted month names and sales data
-        fig.add_trace(go.Scatter(x=seasonality['Month Name'], y=seasonality['Sales: $'], mode='lines+markers', name=f'SKU {sku}'))
-    
+        fig.add_trace(go.Scatter(x=seasonality['Month Name'], y=seasonality['Sales: $'], mode='lines+markers', name=f'{product_name_mapping[sku]}'))  # Update this line to show product names in the legend
+
     fig.update_layout(yaxis_title="Sales ($)")
 
 def all_sku_weekly_sales(df, fig):
@@ -99,7 +105,8 @@ def all_sku_weekly_sales(df, fig):
     for sku in unique_skus:
         df_sku = df[df['L1-Product ID'] == sku]
         weekly_sales = df_sku.groupby('Week End Date')['Sales: $'].sum().reset_index()
-        fig.add_trace(go.Scatter(x=weekly_sales['Week End Date'], y=weekly_sales['Sales: $'], mode='lines+markers', name=f'SKU {sku}'))
+        fig.add_trace(go.Scatter(x=weekly_sales['Week End Date'], y=weekly_sales['Sales: $'], mode='lines+markers', name=f'{product_name_mapping[sku]}'))  # Update this line to show product names in the legend
+
     fig.update_layout(yaxis_title="Sales ($)")
 
 def all_sku_monthly_sales(df, fig):
@@ -114,7 +121,8 @@ def all_sku_monthly_sales(df, fig):
     for sku in unique_skus:
         df_sku = df[df['L1-Product ID'] == sku]
         monthly_sales = df_sku.groupby(pd.Grouper(key='Week End Date', freq='M'))['Sales: $'].sum().reset_index()
-        fig.add_trace(go.Scatter(x=monthly_sales['Week End Date'], y=monthly_sales['Sales: $'], mode='lines+markers', name=f'SKU {sku}'))
+        fig.add_trace(go.Scatter(x=monthly_sales['Week End Date'], y=monthly_sales['Sales: $'], mode='lines+markers', name=f'{product_name_mapping[sku]}'))  # Update this line to show product names in the legend
+
     fig.update_layout(yaxis_title="Sales ($)")
 
 
@@ -187,8 +195,9 @@ with Top_worst_tab:
     filter_col1, filter_col2 = st.columns(2)
 
     # Add the SKU filter in the first column
-    selected_sku = filter_col1.selectbox("Filter by SKU:", ["All"] + list(unique_skus), index=0)
-
+    # Replace the line with the SKU filter in the Top_worst_tab section
+    selected_sku = filter_col1.selectbox("Filter by SKU:", [("All", "All")] + [(sku, product_name_mapping[sku]) for sku in unique_skus], index=0)  # Replace this line to show names in the selectbox
+    selected_sku = selected_sku[0]
     if selected_sku == "All":
         selected_sku = None
 
@@ -211,7 +220,8 @@ SelectedSKU_tab = st.expander("Individual SKU insights")
 with SelectedSKU_tab:
     
     st.title("Selected SKU Analysis")
-    selected_sku = st.selectbox("Select SKU:", unique_skus)
+    selected_sku = st.selectbox("Select SKU:", [(sku, product_name_mapping[sku]) for sku in unique_skus])  # Replace this line to show names in the selectbox
+    selected_sku = selected_sku[0]  # Add this line to get the SKU from the tuple
 
     #Filter the data by selected SKU
     df_sku = df[df['L1-Product ID'] == selected_sku]

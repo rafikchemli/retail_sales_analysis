@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PORT=8018
+PORT=8020
 
 
 # Kill any processes running on the specified port
